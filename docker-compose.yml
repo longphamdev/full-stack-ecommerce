@@ -1,0 +1,57 @@
+version: '0.0.1'
+services:
+
+  database-ecommerce:
+    image: mysql:8
+    container_name: database-ecommerce-container
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: full-stack-ecommerce 
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+      - "33060:33060"
+    volumes:
+      - ./database-ecommerce/db-data:/var/lib/mysql # this is using to mount the data from docker to outside
+      - ./database-ecommerce/db-scripts:/docker-entrypoint-initdb.d/ # this is for running the init scripts
+    networks:
+      - ecommerce-network
+
+  backend-ecommerce:
+    image: backend-ecommerce-image
+    container_name: backend-ecommerce-container
+    build:
+      context: .
+      dockerfile: ./backend-ecommerce/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend-ecommerce:/code
+    depends_on:
+      - database-ecommerce
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://database-ecommerce:3306"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-network
+
+  frontend-ecommerce:
+    image: frontend-ecommerce-image
+    container_name: frontend-ecommerce-container
+    build:
+      context: .
+      dockerfile: ./frontend-ecommerce/Dockerfile
+    ports:
+      - "4200:4200"
+    volumes:
+      - "./frontend-ecommerce:/code/node_modules"
+      - "./frontend-ecommerce:/code"
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge
