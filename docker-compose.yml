@@ -1,4 +1,4 @@
-version: '0.0.1'
+version: '2.4'
 services:
 
   database-ecommerce:
@@ -7,8 +7,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: full-stack-ecommerce 
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
     ports:
       - "3306:3306"
       - "33060:33060"
@@ -21,9 +21,7 @@ services:
   backend-ecommerce:
     image: backend-ecommerce-image
     container_name: backend-ecommerce-container
-    build:
-      context: .
-      dockerfile: ./backend-ecommerce/Dockerfile
+    build: ./backend-ecommerce
     ports:
       - "8080:8080"
     volumes:
@@ -41,13 +39,11 @@ services:
   frontend-ecommerce:
     image: frontend-ecommerce-image
     container_name: frontend-ecommerce-container
-    build:
-      context: .
-      dockerfile: ./frontend-ecommerce/Dockerfile
+    build: ./frontend-ecommerce
     ports:
       - "4200:4200"
     volumes:
-      - "./frontend-ecommerce:/code/node_modules"
+      - "/code/node_modules"
       - "./frontend-ecommerce:/code"
     networks:
       - ecommerce-network
