@@ -10,6 +10,7 @@ import { ProductCategory } from '../common/product-category';
 })
 export class ProductService {
  
+ 
   private baseUrl = 'http://localhost:8080/api/products';
 
   private categoryUrl = 'http://localhost:8080/api/product-category';
@@ -28,6 +29,12 @@ export class ProductService {
 
     const searchUrl = `${this.categoryUrl}`;
     return this.httpClient.get<GetResponseProductCategory>(searchUrl).pipe(map((response:GetResponseProductCategory) => response._embedded.productCategory));
+  }
+  searchProducts(theKeyword: string): Observable<Product[]> {
+    const searchUrl = `${this.baseUrl}/search/findByNameContaining?name=${theKeyword}`;
+    return this.httpClient
+      .get<GetResponseProducts>(searchUrl)
+      .pipe(map((response:GetResponseProducts) => response._embedded.products));
   }
 }
 
