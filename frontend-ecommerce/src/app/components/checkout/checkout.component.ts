@@ -1,3 +1,4 @@
+import { LongphamdevShopFormService } from './../../services/longphamdev-shop-form.service';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
@@ -9,11 +10,14 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 export class CheckoutComponent implements OnInit {
 
 
+
   checkoutFormGroup: FormGroup = new FormGroup({});
 
   totalPrice: number = 0;
   totalQuantity: number = 0;
-  constructor(private formBuilder: FormBuilder) { }
+  creditCardMonths: number[] = [];
+  creditCardYears: number[] = [];
+  constructor(private formBuilder: FormBuilder, private longphamdevShopFormService: LongphamdevShopFormService) { }
 
   ngOnInit(): void {
     this.checkoutFormGroup = this.formBuilder.group({
@@ -46,6 +50,25 @@ export class CheckoutComponent implements OnInit {
       })
 
     });
+
+    // populate credit card months
+    const startMonth: number = new Date().getMonth() + 1;
+    console.log("startMonth: " + startMonth);
+    this.longphamdevShopFormService.getCreditCardMonths(startMonth).subscribe(
+      data => {
+        console.log("Retrieved credit card months: " + JSON.stringify(data));
+        this.creditCardMonths = data;
+      }
+    );
+
+    // populate credit card years
+    this.longphamdevShopFormService.getCreditCardYears().subscribe(
+      data => {
+        console.log("Retrieved credit card years: " + JSON.stringify(data));
+        this.creditCardYears = data;
+      }
+    );
+
   }
 
   onSubmit() {
@@ -61,5 +84,24 @@ export class CheckoutComponent implements OnInit {
     else {
       this.checkoutFormGroup.controls['billingAddress'].reset();
     }
+  }
+
+  handleMonthsAndYears() {
+    const creditCardFormGroup = this.checkoutFormGroup.get('creditCard');
+    const currentYear: number = new Date().getFullYear();
+    const selectedYear: number = Number(creditCardFormGroup?.value.expirationYear);
+
+    let startMonth: number;
+    if(currentYear === selectedYear){
+      startMonth = new Date().getMonth() + 1;
+    }
+    else{
+      startMonth = 1;
+    }
+    this.longphamdevShopFormService.getCreditCardMonths(startMonth).subscribe(
+      data => {
+        this.creditCardMonths = data;
+      }
+    );
   }
 }
