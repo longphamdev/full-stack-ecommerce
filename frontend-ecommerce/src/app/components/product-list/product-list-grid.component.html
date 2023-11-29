@@ -5,12 +5,17 @@
         <!-- loop over the collection of products -->
         <div *ngFor="let tempProduct of products" class="col-md-3">
           <div class="product-box">
-            <img
+            <a routerLink="/products/{{ tempProduct.id }}">
+              <img
               src="{{ tempProduct.imageUrl }}"
               alt="product"
               class="img-responsive"
             />
-            <h1>{{ tempProduct.name }}</h1>
+            </a>
+            <a routerLink="/products/{{ tempProduct.id }}">
+              <h1>{{ tempProduct.name }}</h1>
+            </a>
+            
             <div class="price">
               {{ tempProduct.unitPrice | currency : "USD" }}
             </div>

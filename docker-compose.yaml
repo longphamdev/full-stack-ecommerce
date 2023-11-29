@@ -1,7 +1,8 @@
-version: '2.4'
+version: '3'
 services:
 
   database-ecommerce:
+    working_dir: /code
     image: mysql:8
     container_name: database-ecommerce-container
     environment:
@@ -19,6 +20,7 @@ services:
       - ecommerce-network
 
   backend-ecommerce:
+    working_dir: /code
     image: backend-ecommerce-image
     container_name: backend-ecommerce-container
     build: ./backend-ecommerce
@@ -37,14 +39,15 @@ services:
       - ecommerce-network
 
   frontend-ecommerce:
+    working_dir: /code
     image: frontend-ecommerce-image
     container_name: frontend-ecommerce-container
     build: ./frontend-ecommerce
     ports:
       - "4200:4200"
     volumes:
-      - "/code/node_modules"
       - "./frontend-ecommerce:/code"
+      - "/code/node_modules"
     networks:
       - ecommerce-network
 

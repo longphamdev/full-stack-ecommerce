@@ -4,6 +4,6 @@ WORKDIR /code
 RUN npm install -g @angular/cli@14.0.7
 COPY package.json ./
 RUN npm install
-COPY . .
+COPY . ./
 EXPOSE 4200
 CMD npm run start
