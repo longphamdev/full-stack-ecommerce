@@ -4,6 +4,7 @@ import { Country } from 'src/app/common/country';
 import { State } from 'src/app/common/state';
 import { LongphamdevShopFormService } from './../../services/longphamdev-shop-form.service';
 import { LongphamdevShopValidators } from 'src/app/validators/longphamdev-shop-validators';
+import { CartService } from 'src/app/services/cart.service';
 
 @Component({
   selector: 'app-checkout',
@@ -26,9 +27,11 @@ export class CheckoutComponent implements OnInit {
   shippingAddressStates: State[] = [];
   billingAddressStates: State[] = [];
 
-  constructor(private formBuilder: FormBuilder, private longphamdevShopFormService: LongphamdevShopFormService) { }
+  constructor(private formBuilder: FormBuilder, private longphamdevShopFormService: LongphamdevShopFormService, private cartService: CartService) { }
 
   ngOnInit(): void {
+
+    this.reviewCartDetails();
     this.checkoutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
         firstName: new FormControl('', [Validators.required, Validators.minLength(2), LongphamdevShopValidators.notOnlyWhitespace]),
@@ -64,7 +67,7 @@ export class CheckoutComponent implements OnInit {
     const startMonth: number = new Date().getMonth() + 1;
     console.log("startMonth: " + startMonth);
     this.longphamdevShopFormService.getCreditCardMonths(startMonth).subscribe(
-      data => {
+      (data: number[]) => {
         console.log("Retrieved credit card months: " + JSON.stringify(data));
         this.creditCardMonths = data;
       }
@@ -72,7 +75,7 @@ export class CheckoutComponent implements OnInit {
 
     // populate credit card years
     this.longphamdevShopFormService.getCreditCardYears().subscribe(
-      data => {
+      (data: number[]) => {
         console.log("Retrieved credit card years: " + JSON.stringify(data));
         this.creditCardYears = data;
       }
@@ -80,11 +83,24 @@ export class CheckoutComponent implements OnInit {
 
     // populate countries
     this.longphamdevShopFormService.getCountries().subscribe(
-      data => {
+      (data: Country[]) => {
         console.log("Retrieved countries: " + JSON.stringify(data));
         this.countries = data;
       }
     );
+  }
+  reviewCartDetails() {
+    // subscribe to cartService.totalQuantity
+    this.cartService.totalQuantity.subscribe(
+      (totalQuantity: number) => this.totalQuantity = totalQuantity
+    );
+
+    // subscribe to cartService.totalPrice
+    this.cartService.totalPrice.subscribe(
+      (totalPrice: number) => this.totalPrice = totalPrice
+    );
+
+
   }
 
   onSubmit() {
