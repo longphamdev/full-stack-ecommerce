@@ -1,6 +1,8 @@
 import { LongphamdevShopFormService } from './../../services/longphamdev-shop-form.service';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Country } from 'src/app/common/country';
+import { State } from 'src/app/common/state';
 
 @Component({
   selector: 'app-checkout',
@@ -15,8 +17,14 @@ export class CheckoutComponent implements OnInit {
 
   totalPrice: number = 0;
   totalQuantity: number = 0;
+
   creditCardMonths: number[] = [];
   creditCardYears: number[] = [];
+
+  countries: Country[] = [];
+  shippingAddressStates: State[] = [];
+  billingAddressStates: State[] = [];
+
   constructor(private formBuilder: FormBuilder, private longphamdevShopFormService: LongphamdevShopFormService) { }
 
   ngOnInit(): void {
@@ -69,6 +77,13 @@ export class CheckoutComponent implements OnInit {
       }
     );
 
+    // populate countries
+    this.longphamdevShopFormService.getCountries().subscribe(
+      data => {
+        console.log("Retrieved countries: " + JSON.stringify(data));
+        this.countries = data;
+      }
+    );
   }
 
   onSubmit() {
@@ -79,10 +94,12 @@ export class CheckoutComponent implements OnInit {
   copyShippingAddressToBillingAddress(event: any) {
 
     if (event) {
+      this.billingAddressStates = this.shippingAddressStates;
       this.checkoutFormGroup.controls['billingAddress'].setValue(this.checkoutFormGroup.controls['shippingAddress'].value);
     }
     else {
       this.checkoutFormGroup.controls['billingAddress'].reset();
+      this.billingAddressStates = [];
     }
   }
 
@@ -92,15 +109,37 @@ export class CheckoutComponent implements OnInit {
     const selectedYear: number = Number(creditCardFormGroup?.value.expirationYear);
 
     let startMonth: number;
-    if(currentYear === selectedYear){
+    if (currentYear === selectedYear) {
       startMonth = new Date().getMonth() + 1;
     }
-    else{
+    else {
       startMonth = 1;
     }
     this.longphamdevShopFormService.getCreditCardMonths(startMonth).subscribe(
       data => {
         this.creditCardMonths = data;
+      }
+    );
+  }
+
+  getStates(formGroupName: string) {
+    const formGroup = this.checkoutFormGroup.get(formGroupName);
+    const countryCode = formGroup?.value.country.code;
+    const countryName = formGroup?.value.country.name;
+
+    console.log(`${formGroupName} country code: ${countryCode}`);
+    console.log(`${formGroupName} country name: ${countryName}`);
+    this.longphamdevShopFormService.getStates(countryCode).subscribe(
+      data => {
+        if (formGroupName === 'shippingAddress') {
+          this.shippingAddressStates = data;
+        }
+        else {
+          this.billingAddressStates = data;
+        }
+
+        // select first item by default
+        formGroup?.get('state')?.setValue(data[0]);
       }
     );
   }
