@@ -9,10 +9,10 @@
             "server": "localhost",
             "port": 3306,
             "driver": "MySQL",
-            "name": "full-stack-ecommerce",
+            "name": "root",
             "database": "full-stack-ecommerce",
-            "username": "admin",
-            "password": "admin"
+            "username": "root",
+            "password": "root"
         }
     ]
 }
